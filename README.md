@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/34091025/README.md)
 # PowerShell Security Log Analyzer
 
 **Cybersecurity home lab | PowerShell | Windows Event Logs | Security Monitoring**
