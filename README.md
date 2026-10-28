@@ -101,3 +101,9 @@ Through this project, I practiced writing a reusable `.ps1` script, working with
 `sample-data/SanitizedAuditLog.csv` is generated from the user's actual uploaded October 2025 Windows Security export, but **it is not a byte-for-byte copy**: identifying account/host data and multiline message contents have been removed. Do **not** publish `AuditLog.txt` or other unredacted exports. The spreadsheet screenshot has been cropped to avoid revealing the original message column containing user/machine identifiers.
 
 This project demonstrates local security-log analysis and does not claim an intrusion was detected or ruled out.
+
+
+# Author
+
+## Lucas D. Beames
+Cyber Security Scholar | Lifelong learner | SOC Analyst Novice
