@@ -1,4 +1,4 @@
-
+#PowerShell script to Audit .csv files. Reads events then Determines Audit failure or success
 param (
     [Parameter(Mandatory = $true)]
     [string]$Path
