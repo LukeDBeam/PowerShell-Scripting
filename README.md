@@ -1,3 +1,5 @@
+<img width="1107" height="663" alt="image" src="https://github.com/user-attachments/assets/c23982c0-ce7f-45f3-b421-14fc54981bf1" />
+
 # PowerShell Security Log Analyzer
 
 **Cybersecurity home lab | PowerShell | Windows Event Logs | Security Monitoring**
