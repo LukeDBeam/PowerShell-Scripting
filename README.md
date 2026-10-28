@@ -1,124 +1,100 @@
 # PowerShell Security Log Analyzer
 
-**Cybersecurity home lab | PowerShell | Windows Event Logs | Security Monitoring**
+**PowerShell Scripting | Windows Event Logs | Security Monitoring | Cybersecurity Lab**
 
-## Overview
+## Project Overview
 
-This project demonstrates how I used **PowerShell scripting** to automate the analysis of Windows Security event logs exported to CSV. Instead of manually reviewing thousands of records, my script filters audit events, counts successes and failures, and reports the most frequently occurring Event ID in each category.
+In this lab, I wrote and executed a PowerShell script to analyze an export of Windows Security audit events. The script imports a CSV file, filters **Audit Success** and **Audit Failure** records, counts results, and identifies the most frequently occurring Event ID. This helped me practice security-focused scripting and quickly summarize large sets of Windows events rather than inspecting each record manually.
 
-The project grew out of my university PowerShell scripting lab. This repository presents the practical scripting workflow and a reproducible, privacy-safe example.
+The project is based on my original university PowerShell scripting lab. The screenshots below document my original workflow. For safe public reproduction, I provide a **sanitized copy of the real exported event records** with account names, machine names, logon IDs, and event-message details removed.
 
-## Objectives
+## Tools and Skills
 
-- Practice PowerShell fundamentals, including variables, parameters, conditional statements, functions, and pipelines.
-- Import and process structured security data with `Import-Csv`.
-- Filter **Audit Success** and **Audit Failure** records with `Where-Object`.
-- Identify frequent event identifiers with `Group-Object`, `Sort-Object`, and `Select-Object`.
-- Produce a simple console summary that can support security triage.
+- **Windows PowerShell** — scripting, parameters, variables, conditional statements, functions, and pipelines
+- **Windows Event Viewer** — security audit events exported to a delimited log file
+- **CSV processing** — `Import-Csv`, `Where-Object`, `Group-Object`, `Sort-Object`, and `Select-Object`
+- **Security analysis** — categorizing audit results and recognizing significant Windows Event IDs
 
-## Tools and skills
+## 1. Exploring PowerShell Commands
 
-| Tool / concept | How I used it |
+I started by using `Get-Command` to discover PowerShell commands available on my system. This introduced me to cmdlets and functions before I built the audit script.
+
+```powershell
+Get-Command
+Get-Help Import-Csv
+Get-Command *-Object
+```
+
+![PowerShell Get-Command screenshot](screenshots/01-get-command.png)
+
+## 2. Inspecting the Windows Security Log Export
+
+The original data was exported from Windows Security auditing. It included `Keywords`, `Date and Time`, `Source`, `Event ID`, and `Task Category`, together with event descriptions and user/system details. The public CSV intentionally retains only the five non-identifying columns.
+
+![Original audit-log spreadsheet showing event fields (cropped to omit identifying details)](screenshots/03-audit-log-spreadsheet.png)
+
+### Event IDs worth distinguishing
+
+| Event ID | Windows event meaning |
 | --- | --- |
-| Windows PowerShell / PowerShell | Ran an audit-analysis script (`.ps1`) |
-| Windows Event Viewer | Source of exported security-event records in the original lab |
-| CSV files | Portable input format for log analysis |
-| `Import-Csv` | Converted CSV rows into PowerShell objects |
-| `Where-Object` | Filtered by audit result |
-| `Group-Object` | Counted occurrences by Event ID |
-| `Sort-Object` / `Select-Object` | Selected the most frequent Event ID |
-| `if`/`else`, functions, parameters | Added validation and reusable analysis logic |
+| **5379** | Credential Manager credentials were read; **not** a successful logon event |
+| **4624** | An account was successfully logged on |
+| **4625** | An account failed to log on (not present in this uploaded sample) |
+| **4672** | Special privileges assigned to a new logon |
+| **4799** | Local security-enabled group membership was enumerated |
 
-## Repository contents
+An **Audit Success** label indicates the audited operation completed successfully; it does **not** mean each row is a successful login or establish that a system was intrusion-free.
 
-```text
-PowerShell-Security-Log-Analyzer/
-├── scripts/
-│   └── AuditLog.ps1
-├── sample-data/
-│   └── SampleSecurityLog.csv
-├── screenshots/
-│   └── README.md
-├── docs/
-│   └── LAB_NOTES.md
-├── .gitignore
-└── README.md
+## 3. Writing the PowerShell Script
+
+I wrote a parameterized script, [`scripts/AuditLog.ps1`](scripts/AuditLog.ps1), to read a CSV file and produce an audit summary.
+
+The script:
+
+1. Checks whether the provided CSV file exists.
+2. Imports the records with `Import-Csv`.
+3. Filters events by `Audit Success` and `Audit Failure` using `Where-Object`.
+4. Counts each category.
+5. Uses `Group-Object`, `Sort-Object`, and `Select-Object` to identify the most frequent Event ID in each category.
+6. Displays the results in the PowerShell console.
+
+### Run the script
+
+Clone the repository and, from the repository directory, execute:
+
+```powershell
+.\scripts\AuditLog.ps1 -Path '.\sample-data\SanitizedAuditLog.csv'
 ```
 
-## How to run
+No administrative privileges or access to live Windows logs is required to analyze the included CSV. Run the script in a PowerShell session where local script execution is permitted; do not disable security protections system-wide just to run it.
 
-1. On Windows, open **PowerShell**.
-2. Clone the repository and navigate to it:
+## 4. Original Execution and Results
 
-   ```powershell
-   git clone https://github.com/YOUR-USERNAME/PowerShell-Security-Log-Analyzer.git
-   cd PowerShell-Security-Log-Analyzer
-   ```
+The following screenshot documents the output from my initial PowerShell lab, where I used a local CSV export in `C:\Logs`.
 
-3. Run the included script against the included **synthetic** test data:
+![Original PowerShell audit analysis output](screenshots/02-original-script-output.png)
 
-   ```powershell
-   .\scripts\AuditLog.ps1 -Path .\sample-data\SampleSecurityLog.csv
-   ```
+### Uploaded data vs. historical screenshot
 
-4. To analyze your own CSV export, use a local path:
+The historical screenshot reports **33,292 entries, all Audit Success, zero Audit Failure, and Event ID 5379 as the most frequent**. The separately uploaded `AuditLog.txt` file has **33,266 recognizable exported event records**, including **33,266 Audit Success** and **0 Audit Failure** records. The difference of **26 records** means the screenshot and uploaded file should not be treated as identical copies of a dataset.
 
-   ```powershell
-   .\scripts\AuditLog.ps1 -Path 'C:\Logs\SecurityLog.csv'
-   ```
+For the sanitized public CSV extracted from the uploaded file, the leading Event ID is **5379** (27,747 occurrences). This data can be analyzed again using the included script.
 
-> **Note:** If your environment blocks script execution, check `Get-ExecutionPolicy -List` and follow your organization's approved execution policy. Do not weaken managed security settings to run this lab.
+The script summarizes **audit classifications**, not actual successful/failed login counts. Investigating logins specifically would require filtering IDs **4624** and **4625**.
 
-### Expected output for the included sample CSV
+## 5. What I Learned
 
-```text
-=== Windows Security Audit Log Analysis ===
-Total entries: 6
+Through this project, I practiced writing a reusable `.ps1` script, working with CSV data as PowerShell objects, filtering and grouping audit records, and translating large volumes of raw events into a readable summary. I also learned why **Event ID context matters**: a repeated Credential Manager access event is different from a successful account logon.
 
-Number of Audit Failures: 2 of 6 entries
-Most common Event ID: 4625 (2 occurrences)
+## Future Improvements
 
-Number of Audit Successes: 4 of 6 entries
-Most common Event ID: 5379 (2 occurrences)
+- Add dedicated 4624/4625 logon reporting and suspicious sign-in heuristics.
+- Support `.evtx` files and live collection with `Get-WinEvent` where permitted.
+- Export structured summaries to CSV or JSON and add unit tests.
+- Add optional thresholds for alerting on notable activity.
 
-Analysis complete.
-```
+## Privacy and Dataset Notes
 
-This output is **illustrative** and comes from synthetic events, not from a live system.
+`sample-data/SanitizedAuditLog.csv` is generated from the user's actual uploaded October 2025 Windows Security export, but **it is not a byte-for-byte copy**: identifying account/host data and multiline message contents have been removed. Do **not** publish `AuditLog.txt` or other unredacted exports. The spreadsheet screenshot has been cropped to avoid revealing the original message column containing user/machine identifiers.
 
-## Methodology
-
-1. **Explore commands:** I began by using `Get-Help` and `Get-Command`, then researched `Get-ChildItem`, `Select-String`, `Get-Content`, and `Get-Process`.
-2. **Prepare a CSV:** I worked with security-audit data in a CSV format so that `Import-Csv` could treat each record as an object.
-3. **Write the script:** I implemented filtering, counts, Event ID grouping, and readable console output.
-4. **Debug and execute:** I corrected the file extension to `.ps1`, supplied a CSV path, and ran the script.
-5. **Interpret results:** I used the audit category counts and top Event IDs as a starting point for understanding log activity.
-
-## Results from my original class lab
-
-The lab report described **zero Audit Failure records** and Audit Success events dominated by **Event ID 5379**. The original narrative and screenshot have different total counts (33,323 and 33,292, respectively); those figures are preserved as reported rather than presented as a single verified result. See [lab notes](docs/LAB_NOTES.md).
-
-**Important interpretation:** Event ID **5379** indicates credentials were read from Windows Credential Manager; it is **not a successful user logon**. A successful logon is commonly indicated by Event ID **4624**, while a failed logon is commonly **4625**. Zero failed events in an export does not prove an absence of unauthorized access; conclusions depend on collection scope, audit configuration, and event context.
-
-## Security relevance
-
-Security analysts and system administrators can use scripts like this to establish baseline activity, rapidly summarize exported logs, and identify event types requiring closer investigation. Real incident response also requires event timestamps, hostnames, user accounts, correlation with other sources, and validation of logging coverage.
-
-## Future improvements
-
-- Read logs directly with `Get-WinEvent` (with appropriate authorization).
-- Add date-range and Event ID filters.
-- Export findings as CSV or JSON.
-- Alert on configurable failed-logon thresholds.
-- Correlate related events across hosts and accounts.
-- Add automated tests for different CSV formats and missing values.
-
-## Privacy and responsible use
-
-The public repository contains **synthetic test data only**. Do not commit real Security logs containing account names, machine identifiers, domain details, or other sensitive information. Analyze only systems you own or are authorized to inspect.
-
-## Reference
-
-- [Microsoft Learn — What is PowerShell?](https://learn.microsoft.com/en-us/powershell/scripting/overview)
-- [Microsoft Learn — Import-Csv](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/import-csv)
-- [Microsoft Learn — Windows security auditing events](https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/basic-audit-logon-events)
+This project demonstrates local security-log analysis and does not claim an intrusion was detected or ruled out.
