@@ -25,13 +25,15 @@ Get-Help Import-Csv
 Get-Command *-Object
 ```
 
-![PowerShell Get-Command screenshot](screenshots/01-get-command.png)
+<img width="785" height="914" alt="image" src="https://github.com/user-attachments/assets/7f0bcec5-0d40-4222-9a59-22b44e3386bd" />
+
 
 ## 2. Inspecting the Windows Security Log Export
 
 The original data was exported from Windows Security auditing. It included `Keywords`, `Date and Time`, `Source`, `Event ID`, and `Task Category`, together with event descriptions and user/system details. The public CSV intentionally retains only the five non-identifying columns.
 
-![Original audit-log spreadsheet showing event fields (cropped to omit identifying details)](screenshots/03-audit-log-spreadsheet.png)
+<img width="1107" height="663" alt="image" src="https://github.com/user-attachments/assets/db503e57-1504-4b83-8321-d2778d7a3b84" />
+
 
 ### Event IDs worth distinguishing
 
@@ -72,7 +74,8 @@ No administrative privileges or access to live Windows logs is required to analy
 
 The following screenshot documents the output from my initial PowerShell lab, where I used a local CSV export in `C:\Logs`.
 
-![Original PowerShell audit analysis output](screenshots/02-original-script-output.png)
+<img width="869" height="506" alt="image" src="https://github.com/user-attachments/assets/b7dc49b8-79a5-4070-99e0-f7d027c6c732" />
+
 
 ### Uploaded data vs. historical screenshot
 
