@@ -1,7 +1,8 @@
 # Security Disclaimer
 
 
-This project was developed for educational purposes, Using Windows Security Event logs exported from a personal computer into a CSV file
+This project was developed for educational purposes, Using Windows Security Event logs exported from a personal computer into a CSV file 
+That were then altered removing personal information inside the Event log.
 
 
 
